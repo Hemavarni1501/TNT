@@ -1,0 +1,8 @@
+{
+  "name": "Teach and Trade (TNT)",
+  "description": "A web platform connecting learners with skilled trainers for paid or barter-based skill exchange, featuring AI-powered matching and course management.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
