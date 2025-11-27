@@ -158,25 +158,11 @@ TNT/
    cd extracted
    npm run dev
    ```
-
+   
 6. **Access the Application**
    - Frontend: `http://localhost:3000`
    - Backend API: `http://localhost:5000`
-
-## 🔑 Environment Variables
-
-### Backend (.env)
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PORT` | Server port | `5000` |
-| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/tnt` |
-| `JWT_SECRET` | Secret key for JWT tokens | `your_secret_key` |
-
-### Frontend (.env)
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `VITE_GEMINI_API_KEY` | Google Gemini API key | `your_api_key` |
-
+  
 ## 📝 API Endpoints
 
 ### Authentication
@@ -219,31 +205,17 @@ Users don't see their own courses in the marketplace, creating a cleaner, more r
 - Input validation
 - Secure token storage
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👥 Author
-
-**Hemavarni**
-- GitHub: [@Hemavarni1501](https://github.com/Hemavarni1501)
-
 ## 🙏 Acknowledgments
 
 - Google Gemini AI for powering intelligent features
 - Unsplash for high-quality course images
 - The MERN stack community
 
+## BY 
 
+TEAM ECHOVERSE
+
+---
 
 **Built with ❤️ using the MERN Stack**
+
