@@ -1,34 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar, CheckCircle, DollarSign, TrendingUp, Video } from 'lucide-react';
-import { fetchUserBookings, fetchDashboardStats } from '../services/api';
+import { Calendar, CheckCircle, DollarSign, TrendingUp, Video, Edit } from 'lucide-react';
+import { fetchUserBookings, fetchDashboardStats, rescheduleBooking } from '../services/api';
+import EditProfile from './EditProfile';
 
 const Dashboard = ({ user, onJoinClass }) => {
     const [bookings, setBookings] = useState([]);
     const [stats, setStats] = useState({ totalEarnings: 0, monthlyEarnings: [], totalBookingsReceived: 0 });
     const [isLoading, setIsLoading] = useState(true);
+    const [showEditProfile, setShowEditProfile] = useState(false);
+    const [currentUser, setCurrentUser] = useState(user);
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [bookingsData, statsData] = await Promise.all([
-                    fetchUserBookings(),
-                    fetchDashboardStats()
-                ]);
-                setBookings(bookingsData);
-                setStats(statsData);
-            } catch (error) {
-                console.error("Failed to load dashboard data:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        if (user) {
-            loadData();
-        }
-    }, [user]);
-
-    // Default chart data if empty
+    // Chart data...
     const chartData = stats.monthlyEarnings.length > 0 ? stats.monthlyEarnings : [
         { name: 'Jan', earnings: 0 },
         { name: 'Feb', earnings: 0 },
@@ -38,13 +21,78 @@ const Dashboard = ({ user, onJoinClass }) => {
         { name: 'Jun', earnings: 0 },
     ];
 
+    const [rescheduleModal, setRescheduleModal] = useState({ show: false, booking: null });
+    const [newDate, setNewDate] = useState('');
+    const [newTime, setNewTime] = useState('');
+
+    // Load bookings and stats on mount
+    useEffect(() => {
+        const loadDashboardData = async () => {
+            try {
+                setIsLoading(true);
+                const [bookingsData, statsData] = await Promise.all([
+                    fetchUserBookings(),
+                    fetchDashboardStats()
+                ]);
+                setBookings(bookingsData);
+                setStats(statsData);
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (user) {
+            loadDashboardData();
+        } else {
+            setIsLoading(false);
+        }
+    }, [user]);
+
+    const handleRescheduleClick = (booking) => {
+        setRescheduleModal({ show: true, booking });
+        setNewDate(booking.date);
+        setNewTime(booking.time);
+    };
+
+    const handleRescheduleSubmit = async () => {
+        if (!rescheduleModal.booking) return;
+        try {
+            await rescheduleBooking(rescheduleModal.booking._id, { date: newDate, time: newTime });
+            // Update local state
+            setBookings(prev => prev.map(b =>
+                b._id === rescheduleModal.booking._id ? { ...b, date: newDate, time: newTime } : b
+            ));
+            setRescheduleModal({ show: false, booking: null });
+            alert("Booking rescheduled successfully!");
+        } catch (error) {
+            alert("Failed to reschedule: " + error.message);
+        }
+    };
+
+    const handleProfileUpdate = (updatedUser) => {
+        setCurrentUser(updatedUser);
+    };
+
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-slate-900">Welcome back, {user.name}</h1>
-                <p className="text-slate-500 mt-1">Here's what's happening with your learning journey.</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">Welcome back, {currentUser.name}</h1>
+                    <p className="text-slate-500 mt-1">Here's what's happening with your learning journey.</p>
+                </div>
+                {currentUser.role === 'TRAINER' && (
+                    <button
+                        onClick={() => setShowEditProfile(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
+                    >
+                        <Edit size={18} />
+                        <span className="hidden sm:inline">Edit Profile</span>
+                    </button>
+                )}
             </div>
 
             {/* Stats Grid */}
@@ -90,7 +138,7 @@ const Dashboard = ({ user, onJoinClass }) => {
                         </h3>
                     </div>
                     <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                             <LineChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis
@@ -148,13 +196,21 @@ const Dashboard = ({ user, onJoinClass }) => {
                                     </div>
 
                                     {booking.status === 'CONFIRMED' && (
-                                        <button
-                                            onClick={() => onJoinClass(booking)}
-                                            className="w-full mt-1 flex items-center justify-center gap-2 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded transition-colors"
-                                        >
-                                            <Video size={14} />
-                                            Join Classroom
-                                        </button>
+                                        <div className="flex gap-2 mt-1">
+                                            <button
+                                                onClick={() => onJoinClass(booking)}
+                                                className="flex-1 flex items-center justify-center gap-2 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded transition-colors"
+                                            >
+                                                <Video size={14} />
+                                                Join
+                                            </button>
+                                            <button
+                                                onClick={() => handleRescheduleClick(booking)}
+                                                className="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium rounded transition-colors"
+                                            >
+                                                Reschedule
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             ))
@@ -167,6 +223,58 @@ const Dashboard = ({ user, onJoinClass }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Reschedule Modal */}
+            {rescheduleModal.show && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">Reschedule Session</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">New Date</label>
+                                <input
+                                    type="date"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500"
+                                    value={newDate}
+                                    onChange={(e) => setNewDate(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">New Time</label>
+                                <input
+                                    type="time"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500"
+                                    value={newTime}
+                                    onChange={(e) => setNewTime(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    onClick={() => setRescheduleModal({ show: false, booking: null })}
+                                    className="flex-1 py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleRescheduleSubmit}
+                                    className="flex-1 py-2 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Profile Modal */}
+            {showEditProfile && (
+                <EditProfile
+                    user={currentUser}
+                    onClose={() => setShowEditProfile(false)}
+                    onUpdate={handleProfileUpdate}
+                />
+            )}
         </div>
     );
 };

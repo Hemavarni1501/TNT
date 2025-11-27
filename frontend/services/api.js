@@ -93,3 +93,23 @@ export const createBooking = async (bookingData) => {
     if (!response.ok) throw new Error('Failed to create booking');
     return response.json();
 };
+
+export const rescheduleBooking = async (bookingId, newDetails) => {
+    const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(newDetails),
+    });
+    if (!response.ok) throw new Error('Failed to reschedule booking');
+    return response.json();
+};
+
+export const updateUserProfile = async (profileData) => {
+    const response = await fetch(`${API_URL}/users/profile`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(profileData),
+    });
+    if (!response.ok) throw new Error('Failed to update profile');
+    return response.json();
+};

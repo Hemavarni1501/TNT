@@ -31,6 +31,32 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
+// Update booking (reschedule)
+router.put('/:id', auth, async (req, res) => {
+    try {
+        const { date, time } = req.body;
+        const booking = await Booking.findById(req.params.id);
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        // Ensure user owns the booking
+        if (booking.learner.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        booking.date = date;
+        booking.time = time;
+        booking.status = 'CONFIRMED'; // Re-confirm if it was something else? Or keep as is.
+
+        await booking.save();
+        res.json(booking);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
 // Get trainer stats (earnings)
 router.get('/stats', auth, async (req, res) => {
     try {

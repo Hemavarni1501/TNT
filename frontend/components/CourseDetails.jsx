@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { askCourseAssistant } from '../services/geminiService';
 import { MapPin, Clock, ArrowLeft, Bot, Send, RefreshCw, Star, CreditCard, CheckCircle } from 'lucide-react';
+import TrainerProfile from './TrainerProfile';
 
 const CourseDetails = ({ course, onBack, onBook }) => {
     const [chatInput, setChatInput] = useState('');
@@ -120,6 +121,14 @@ const CourseDetails = ({ course, onBack, onBook }) => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Trainer Profile Section */}
+                    {course.trainer && (
+                        <div className="mt-6">
+                            <h3 className="text-xl font-bold text-slate-900 mb-4">About the Trainer</h3>
+                            <TrainerProfile trainer={course.trainer} compact={true} />
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar */}

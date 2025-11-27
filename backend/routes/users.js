@@ -122,4 +122,36 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// @route   PUT /api/users/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', auth, async (req, res) => {
+    try {
+        const { bio, linkedin_url, github_url, portfolio_url, certifications, experience, education, skills_offered } = req.body;
+
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Update fields
+        if (bio !== undefined) user.bio = bio;
+        if (linkedin_url !== undefined) user.linkedin_url = linkedin_url;
+        if (github_url !== undefined) user.github_url = github_url;
+        if (portfolio_url !== undefined) user.portfolio_url = portfolio_url;
+        if (certifications !== undefined) user.certifications = certifications;
+        if (experience !== undefined) user.experience = experience;
+        if (education !== undefined) user.education = education;
+        if (skills_offered !== undefined) user.skills_offered = skills_offered;
+
+        // Check profile completion
+        user.profile_completed = !!(user.bio && user.skills_offered && user.skills_offered.length > 0);
+
+        await user.save();
+
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 export default router;

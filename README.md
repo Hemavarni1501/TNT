@@ -244,10 +244,6 @@ This project is licensed under the MIT License.
 - Unsplash for high-quality course images
 - The MERN stack community
 
-## 📞 Support
 
-For support, email your-email@example.com or open an issue in the GitHub repository.
-
----
 
 **Built with ❤️ using the MERN Stack**

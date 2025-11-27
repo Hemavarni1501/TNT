@@ -17,7 +17,7 @@ export const findSmartMatches = async (query, allCourses) => {
     try {
         // Simplify course data for the prompt to save tokens
         const courseSummaries = allCourses.map(c => ({
-            id: c.id,
+            id: c._id || c.id,
             title: c.title,
             description: c.description,
             tags: c.tags,
@@ -102,7 +102,7 @@ export const askCourseAssistant = async (question, contextCourse) => {
       Trainer: ${contextCourse.trainer_name}
       Description: ${contextCourse.description}
       Location: ${contextCourse.location}
-      Price: $${contextCourse.price}
+      Price: ₹${contextCourse.price}
       Barter: ${contextCourse.is_barter_enabled ? 'Available' : 'Not available'}
       
       Student Question: "${question}"

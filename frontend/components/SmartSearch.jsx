@@ -22,7 +22,7 @@ const SmartSearch = ({ courses, onResults, onReset }) => {
                 const basicMatches = courses.filter(c =>
                     c.title.toLowerCase().includes(lowerQ) ||
                     c.description.toLowerCase().includes(lowerQ) ||
-                    c.tags.some(t => t.toLowerCase().includes(lowerQ))
+                    c.tags?.some(t => t.toLowerCase().includes(lowerQ))
                 );
                 onResults(basicMatches);
             } else {

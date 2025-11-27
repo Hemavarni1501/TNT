@@ -7,7 +7,7 @@ const router = express.Router();
 // Get all courses
 router.get('/', async (req, res) => {
     try {
-        const courses = await Course.find().populate('trainer', 'name avatar rating');
+        const courses = await Course.find().populate('trainer', 'name avatar rating bio linkedin_url github_url portfolio_url skills_offered certifications experience education profile_completed');
         res.json(courses);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 // Get single course
 router.get('/:id', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id).populate('trainer', 'name avatar rating');
+        const course = await Course.findById(req.params.id).populate('trainer', 'name avatar rating bio linkedin_url github_url portfolio_url skills_offered certifications experience education profile_completed');
         if (!course) return res.status(404).json({ message: 'Course not found' });
         res.json(course);
     } catch (err) {
